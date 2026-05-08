@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>To The Woman Who Made Me Who I Am</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Dancing+Script:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --cream: #fdf6ef;
+            --beige: #f5e9da;
+            --blush: #f0d5c8;
+            --rose: #e8b4a0;
+            --gold: #c9956c;
+            --deep: #8b5e52;
+            --dark: #2d1b14;
+            --glass: rgba(253, 246, 239, 0.72);
+            --glass-b: rgba(201, 149, 108, 0.3);
+            --text: #2d1b14;
+            --bg: var(--cream);
+        }
+
+        [data-theme="dark"] {
+            --cream: #1a0f0b;
+            --beige: #231510;
+            --blush: #2d1b14;
+            --glass: rgba(45, 27, 20, 0.8);
+            --glass-b: rgba(201, 149, 108, 0.4);
+            --text: #f5e9da;
+            --bg: #1a0f0b;
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--text);
+            overflow-x: hidden;
+            transition: background 0.5s, color 0.5s
+        }
+
+        /* LOADER */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #1a0f0b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 1.2s
+        }
+
+        #loader.hidden {
+            opacity: 0;
+            pointer-events: none
+        }
+
+        .loader-inner {
+            text-align: center
+        }
+
+        .loader-flower {
+            font-size: 48px;
+            animation: spin 4s linear infinite;
+            display: block;
+            margin-bottom: 20px
+        }
+
+        .loader-txt {
+            font-family: 'Dancing Script', cursive;
+            color: #f5e9da;
+            font-size: 22px;
+            opacity: 0;
+            animation: fadeUp 1s 0.5s forwards
+        }
+
+        .loader-bar {
+            width: 200px;
+            height: 2px;
+            background: rgba(201, 149, 108, 0.3);
+            margin: 20px auto 0;
+            border-radius: 2px;
+            overflow: hidden
+        }
+
+        .loader-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #c9956c, #e8b4a0);
+            width: 0;
+            animation: fillBar 2s 0.5s ease forwards
+        }
+
+        /* CONTROLS */
+        #controls {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px
+        }
+
+        .ctrl {
+            background: var(--glass);
+            border: 1px solid var(--glass-b);
+            backdrop-filter: blur(12px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--deep);
+            transition: all 0.3s;
+            letter-spacing: 0.05em
+        }
+
+        .ctrl:hover {
+            background: var(--blush);
+            transform: scale(1.05)
+        }
+
+        /* PHOTO DUMP LIGHTBOX */
+        #dumpLightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 10005;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #dumpLightbox.on {
+            display: flex;
+        }
+
+        #dumpLightbox .lb-bg {
+            position: absolute;
+            inset: 0;
+            background: rgba(26, 15, 11, 0.95);
+            backdrop-filter: blur(15px);
+            cursor: pointer;
+        }
+
+        #dumpLightbox .lb-img {
+            position: relative;
+            max-width: 90vw;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            z-index: 2;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #dumpLightbox .lb-caption {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: #fdf6ef;
+            font-size: 18px;
+            z-index: 2;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+            animation: fadeUp 0.6s ease;
+        }
+
+        #dumpLightbox .lb-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 8px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            z-index: 3;
+            transition: all 0.3s;
+        }
+
+        #dumpLightbox .lb-close:hover {
+            background: var(--gold);
+            color: #1a0f0b;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* FAMILY POPUP */
+        #familyPopup {
+            position: fixed;
+            inset: 0;
+            background: rgba(26, 15, 11, 0.95);
+            z-index: 10000;
+            display: none;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        #familyPopup.on {
+            display: block;
+        }
+
+        .fam-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 8px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            z-index: 10001;
+            transition: all 0.3s;
+        }
+
+        .fam-close:hover {
+            background: var(--gold);
+            color: #1a0f0b;
+        }
+
+        .fam-pic {
+            position: absolute;
+            width: clamp(240px, 40vw, 360px);
+            aspect-ratio: 4/5;
+            background: #fff;
+            padding: 12px 12px 40px 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: scale(0.5) translate(-50%, -50%);
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            top: 50%;
+            left: 50%;
+            transform-origin: top left;
+        }
+
+        .fam-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        /* EASTER EGG */
+        #eggOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(26, 15, 11, 0.92);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            backdrop-filter: blur(8px)
+        }
+
+        #eggOverlay.on {
+            display: flex
+        }
+
+        .egg-box {
+            background: var(--glass);
+            border: 1px solid var(--glass-b);
+            padding: 52px 64px;
+            border-radius: 28px;
+            text-align: center;
+            animation: fadeUp 0.5s forwards;
+            max-width: 480px;
+            margin: 16px
+        }
+
+        .egg-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            color: var(--deep);
+            margin-bottom: 16px
+        }
+
+        .egg-box p {
+            font-family: 'Dancing Script', cursive;
+            font-size: 22px;
+            color: var(--gold);
+            line-height: 1.6
+        }
+
+        .egg-close {
+            margin-top: 28px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--deep);
+            background: none;
+            border: 1px solid var(--glass-b);
+            padding: 8px 22px;
+            border-radius: 50px;
+            font-family: 'Cormorant Garamond', serif
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #1a0f0b 0%, #4a2518 35%, #7a4a3c 65%, #c9956c 100%)
+        }
+
+        .hero-vignette {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 80% at 50% 40%, transparent 30%, rgba(26, 15, 11, 0.7) 100%)
+        }
+
+        .light-leak {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(201, 149, 108, 0.12) 0%, transparent 70%);
+            pointer-events: none
+        }
+
+        .light-leak.l1 {
+            top: -100px;
+            left: -100px
+        }
+
+        .light-leak.l2 {
+            bottom: -100px;
+            right: -100px;
+            background: radial-gradient(circle, rgba(232, 180, 160, 0.1) 0%, transparent 70%)
+        }
+
+        #particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none
+        }
+
+        .p-dot {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(201, 149, 108, 0.7)
+        }
+
+        .hero-c {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 32px 24px;
+            max-width: 860px
+        }
+
+        .hero-eye {
+            font-family: 'Dancing Script', cursive;
+            color: var(--rose);
+            font-size: 18px;
+            margin-bottom: 16px;
+            opacity: 0;
+            animation: fadeUp 1s 1s forwards
+        }
+
+        .hero-h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(30px, 6vw, 70px);
+            color: #fdf6ef;
+            line-height: 1.15;
+            opacity: 0;
+            animation: fadeUp 1s 1.3s forwards
+        }
+
+        .hero-h1 em {
+            color: var(--gold);
+            font-style: italic
+        }
+
+        .hero-sub {
+            font-size: clamp(16px, 2.5vw, 21px);
+            color: rgba(253, 246, 239, 0.72);
+            margin-top: 18px;
+            font-style: italic;
+            opacity: 0;
+            animation: fadeUp 1s 1.6s forwards
+        }
+
+        .hero-heart {
+            font-size: 30px;
+            margin-top: 20px;
+            cursor: pointer;
+            opacity: 0;
+            animation: fadeUp 1s 1.9s forwards;
+            display: inline-block;
+            transition: transform 0.3s;
+            color: var(--rose)
+        }
+
+        .hero-heart:hover {
+            transform: scale(1.35) rotate(-10deg)
+        }
+
+        .cta-wrap {
+            margin-top: 36px;
+            opacity: 0;
+            animation: fadeUp 1s 2.2s forwards
+        }
+
+        .cta-btn {
+            font-family: 'Dancing Script', cursive;
+            font-size: 19px;
+            color: #1a0f0b;
+            background: linear-gradient(135deg, var(--gold), var(--rose));
+            border: none;
+            padding: 14px 44px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s;
+            box-shadow: 0 8px 30px rgba(201, 149, 108, 0.45);
+            letter-spacing: 0.04em
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 44px rgba(201, 149, 108, 0.65)
+        }
+
+        /* SECTIONS */
+        .sec-hdr {
+            text-align: center;
+            padding: 80px 20px 60px
+        }
+
+        .sec-eye {
+            font-family: 'Dancing Script', cursive;
+            color: var(--gold);
+            font-size: 18px;
+            margin-bottom: 12px
+        }
+
+        .sec-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(26px, 5vw, 50px);
+            color: var(--deep);
+            line-height: 1.2
+        }
+
+        .sec-div {
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 20px auto 0
+        }
+
+        /* PHOTO DUMP */
+        .dump-bg {
+            background: linear-gradient(180deg, var(--cream), var(--beige));
+            padding-bottom: 80px
+        }
+
+        .photo-dump {
+            columns: 3 300px;
+            column-gap: 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .dump-item {
+            break-inside: avoid;
+            margin-bottom: 24px;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(139, 94, 82, 0.15);
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            background: var(--glass);
+        }
+
+        .dump-item.vis {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dump-img {
+            width: 100%;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            object-fit: cover;
+        }
+
+        .dump-item:hover .dump-img {
+            transform: scale(1.08);
+        }
+
+        .dump-item.t-tall .dump-img {
+            height: 420px;
+        }
+
+        .dump-item.t-short .dump-img {
+            height: 260px;
+        }
+
+        .dump-item.t-med .dump-img {
+            height: 340px;
+        }
+
+        .dump-item.t-landscape {
+            column-span: all;
+        }
+
+        .dump-item.t-landscape .dump-img {
+            height: 480px;
+        }
+
+        @media(max-width: 640px) {
+            .dump-item.t-landscape .dump-img {
+                height: 300px;
+            }
+        }
+
+        .dump-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(26, 15, 11, 0.9) 0%, rgba(45, 27, 20, 0.4) 50%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            display: flex;
+            align-items: flex-end;
+            padding: 30px 24px;
+        }
+
+        .dump-item:hover .dump-overlay {
+            opacity: 1;
+        }
+
+        .dump-text {
+            color: #fdf6ef;
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            line-height: 1.4;
+            transform: translateY(20px);
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .dump-text em {
+            color: var(--gold);
+            font-family: 'Dancing Script', cursive;
+            font-size: 24px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .dump-item:hover .dump-text {
+            transform: translateY(0);
+        }
+
+        /* GALLERY */
+        .gal-bg {
+            background: var(--beige);
+            padding-bottom: 80px
+        }
+
+        .polaroid-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 36px;
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 0 24px
+        }
+
+        .pol {
+            background: #fff;
+            padding: 16px 16px 52px;
+            box-shadow: 0 8px 32px rgba(139, 94, 82, 0.2);
+            cursor: pointer;
+            transition: all 0.4s;
+            position: relative
+        }
+
+        .pol:nth-child(1) {
+            transform: rotate(-2.5deg)
+        }
+
+        .pol:nth-child(2) {
+            transform: rotate(1.8deg)
+        }
+
+        .pol:nth-child(3) {
+            transform: rotate(-1.2deg)
+        }
+
+        .pol:nth-child(4) {
+            transform: rotate(2.2deg)
+        }
+
+        .pol:hover {
+            transform: rotate(0) scale(1.08) !important;
+            box-shadow: 0 20px 56px rgba(139, 94, 82, 0.38);
+            z-index: 10
+        }
+
+        .pol-img {
+            width: 100%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px
+        }
+
+        .pol-cap {
+            font-family: 'Dancing Script', cursive;
+            text-align: center;
+            color: var(--deep);
+            font-size: 15px;
+            position: absolute;
+            bottom: 16px;
+            left: 0;
+            right: 0
+        }
+
+        /* AUDIO */
+        .aud-bg {
+            background: linear-gradient(140deg, #1a0f0b, #3d2218);
+            padding: 80px 20px
+        }
+
+        .aud-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            max-width: 720px;
+            margin: 0 auto
+        }
+
+        .aud-card {
+            background: rgba(253, 246, 239, 0.06);
+            border: 1px solid rgba(201, 149, 108, 0.25);
+            border-radius: 22px;
+            padding: 30px;
+            transition: all 0.4s
+        }
+
+        .aud-card.playing {
+            background: rgba(201, 149, 108, 0.14);
+            border-color: rgba(201, 149, 108, 0.5);
+            box-shadow: 0 0 40px rgba(201, 149, 108, 0.2)
+        }
+
+        .aud-title {
+            font-family: 'Playfair Display', serif;
+            color: #fdf6ef;
+            font-size: 18px;
+            margin-bottom: 8px
+        }
+
+        .aud-sub {
+            font-size: 14px;
+            color: rgba(253, 246, 239, 0.55);
+            margin-bottom: 20px;
+            font-style: italic
+        }
+
+        .waveform {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 40px;
+            margin-bottom: 20px
+        }
+
+        .wb {
+            width: 4px;
+            background: rgba(201, 149, 108, 0.5);
+            border-radius: 2px;
+            height: 8px;
+            transition: height 0.2s
+        }
+
+        .playing .wb {
+            animation: wv 0.7s ease-in-out infinite
+        }
+
+        .playing .wb:nth-child(2n) {
+            animation-delay: 0.1s
+        }
+
+        .playing .wb:nth-child(3n) {
+            animation-delay: 0.2s
+        }
+
+        .playing .wb:nth-child(4n) {
+            animation-delay: 0.3s
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, var(--gold), var(--rose));
+            border: none;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #1a0f0b;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .play-btn:hover {
+            transform: scale(1.12)
+        }
+
+        /* LETTERS */
+        .let-bg {
+            background: linear-gradient(180deg, var(--cream), var(--beige));
+            padding: 80px 20px
+        }
+
+        .let-inner {
+            max-width: 720px;
+            margin: 0 auto
+        }
+
+        .tab-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 44px
+        }
+
+        .tab {
+            font-family: 'Dancing Script', cursive;
+            font-size: 16px;
+            padding: 10px 26px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-b);
+            background: transparent;
+            cursor: pointer;
+            color: var(--deep);
+            transition: all 0.3s
+        }
+
+        .tab.on {
+            background: linear-gradient(135deg, var(--gold), var(--rose));
+            color: #fff;
+            border-color: transparent
+        }
+
+        .let-box {
+            background: var(--glass);
+            border: 1px solid var(--glass-b);
+            border-radius: 22px;
+            padding: 48px;
+            min-height: 300px;
+            backdrop-filter: blur(12px)
+        }
+
+        .let-from {
+            font-family: 'Dancing Script', cursive;
+            color: var(--gold);
+            font-size: 19px;
+            margin-bottom: 24px
+        }
+
+        #letText {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            line-height: 1.95;
+            font-style: italic;
+            white-space: pre-line;
+            min-height: 160px
+        }
+
+        /* GRATITUDE */
+        .grat-bg {
+            background: linear-gradient(135deg, var(--blush), var(--cream));
+            padding: 80px 20px
+        }
+
+        .ctr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 28px;
+            max-width: 820px;
+            margin: 0 auto
+        }
+
+        .ctr-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-b);
+            border-radius: 22px;
+            padding: 42px 28px;
+            text-align: center;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 6px 30px rgba(139, 94, 82, 0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s
+        }
+
+        .ctr-card.vis {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        .ctr-icon {
+            font-size: 38px;
+            margin-bottom: 14px
+        }
+
+        .ctr-val {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(36px, 6vw, 56px);
+            color: var(--deep);
+            line-height: 1;
+            margin-bottom: 12px
+        }
+
+        .ctr-lbl {
+            font-size: 16px;
+            color: rgba(45, 27, 20, 0.7);
+            font-style: italic
+        }
+
+        /* FINAL */
+        .final {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden
+        }
+
+        .final-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(155deg, #0f0705 0%, #2d1b14 40%, #4a2518 70%, #7a4a3c 100%)
+        }
+
+        #petals {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden
+        }
+
+        .petal {
+            position: absolute;
+            top: -24px;
+            animation: pf var(--d) var(--dl) linear infinite
+        }
+
+        .final-c {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 40px 24px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1.6s, transform 1.2s
+        }
+
+        .final-c.vis {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        .final-eye {
+            font-family: 'Dancing Script', cursive;
+            color: var(--rose);
+            font-size: 20px;
+            margin-bottom: 20px
+        }
+
+        .final-h {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 6vw, 62px);
+            color: #fdf6ef;
+            line-height: 1.3;
+            margin-bottom: 20px
+        }
+
+        .final-h em {
+            color: var(--gold);
+            font-style: italic
+        }
+
+        .final-sub {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(24px, 4.5vw, 44px);
+            color: var(--rose)
+        }
+
+        .final-bloom {
+            font-size: 30px;
+            margin-top: 28px;
+            display: inline-block;
+            animation: bloom 2s ease-in-out infinite
+        }
+
+        /* KEYFRAMES */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(22px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        @keyframes fillBar {
+            to {
+                width: 100%
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-14px)
+            }
+        }
+
+        @keyframes bloom {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0deg)
+            }
+
+            50% {
+                transform: scale(1.2) rotate(15deg)
+            }
+        }
+
+        @keyframes wv {
+
+            0%,
+            100% {
+                height: 6px
+            }
+
+            50% {
+                height: 28px
+            }
+        }
+
+        @keyframes pf {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0
+            }
+
+            10% {
+                opacity: 1
+            }
+
+            90% {
+                opacity: 0.6
+            }
+
+            100% {
+                transform: translate(var(--dx), 110vh) rotate(540deg);
+                opacity: 0
+            }
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(201, 149, 108, 0.2)
+            }
+
+            50% {
+                box-shadow: 0 0 50px rgba(201, 149, 108, 0.5)
+            }
+        }
+
+        @media(max-width:640px) {
+            .photo-dump {
+                columns: 1;
+            }
+
+            #controls {
+                top: 10px;
+                right: 10px
+            }
+
+            .ctrl {
+                padding: 6px 12px;
+                font-size: 11px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOADER -->
+    <div id="loader">
+        <div class="loader-inner">
+            <span class="loader-flower">🌸</span>
+            <div class="loader-txt">Opening the memory box…</div>
+            <div class="loader-bar">
+                <div class="loader-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div id="controls">
+        <button class="ctrl" id="musicBtn" onclick="toggleMusic()">♪ Music</button>
+        <button class="ctrl" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+    </div>
+
+    <!-- FAMILY POPUP -->
+    <div id="familyPopup">
+        <button class="fam-close" onclick="closeFamilyPopup()">Close Gallery</button>
+        <div id="famContainer"></div>
+    </div>
+
+    <!-- EASTER EGG -->
+    <div id="eggOverlay">
+        <div class="egg-box">
+            <h3>A Secret Just For You</h3>
+            <p>"Thank you for loving me<br>even on my worst days."</p>
+            <button class="egg-close" onclick="closeEgg()">Close with love ♡</button>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero" id="top">
+        <div class="hero-bg"></div>
+        <div class="hero-vignette"></div>
+        <div class="light-leak l1"></div>
+        <div class="light-leak l2"></div>
+        <div id="particles"></div>
+        <div class="hero-c">
+            <div class="hero-eye">With every part of my heart</div>
+            <h1 class="hero-h1">To The Woman Who Made Me <em>Who I Am</em></h1>
+            <p class="hero-sub">A journey through the memories that shaped my life.</p>
+            <span class="hero-heart" id="hHeart" onclick="openEgg()" title="A secret waits here ♡">♥</span>
+            <div class="cta-wrap">
+                <button class="cta-btn" onclick="scrollTo('dump-sec')">Begin the Journey ↓</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- PHOTO DUMP -->
+    <section class="dump-bg" id="dump-sec">
+        <div class="sec-hdr">
+            <div class="sec-eye">A Lifetime of Memories</div>
+            <h2 class="sec-title">Moments I Admire Most</h2>
+            <div class="sec-div"></div>
+        </div>
+        <div class="photo-dump">
+
+            <div class="dump-item t-landscape">
+                <img src="New folder/Family1.jpeg" class="dump-img" alt="First Memory"
+                    style="object-position: center bottom;">
+                <div class="dump-overlay">
+                    <div class="dump-text">
+                        <em>Your smile</em>
+                        I admire how your smile can instantly light up my darkest days.
+                    </div>
+                </div>
+            </div>
+
+            <div class="dump-item t-med">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.03 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text">
+                        <em>Your patience</em>
+                        I admire your endless patience, even when I tested it the most.
+                    </div>
+                </div>
+            </div>
+
+            <div class="dump-item t-tall">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.04 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text">
+                        <em>Your strength</em>
+                        I admire your quiet strength, holding our world together effortlessly.
+                    </div>
+                </div>
+            </div>
+
+            <div class="dump-item t-med">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.05 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text">
+                        <em>Your grace</em>
+                        I admire the grace with which you handle every storm.
+                    </div>
+                </div>
+            </div>
+
+            <div class="dump-item t-tall">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.06 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text">
+                        <em>My safe place</em>
+                        I admire how calling your name is the very first thing I do whenever I come home.
+                    </div>
+                </div>
+            </div>
+
+            <div class="dump-item t-med">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.07 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text">
+                        <em>Your selflessness</em>
+                        I admire how you always put everyone else before yourself.
+                    </div>
+                </div>
+            </div>
+
+            <div class="dump-item t-med">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.08 PM (1).jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text">
+                        <em>Your magic</em>
+                        I admire the magic in your hands, making everything beautiful.
+                    </div>
+                </div>
+            </div>
+
+            <div class="dump-item t-med">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.08 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-med">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.10 PM (1).jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-med">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.10 PM (2).jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-med">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.10 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.11 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.13 PM (1).jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-med">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.13 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.14 PM (1).jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 6.59.14 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 7.08.41 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 7.08.43 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-med">
+                <img src="New folder/Family3.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/Family4.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/Family5.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-short">
+                <img src="New folder/Family6.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/Family7.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-short">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 7.08.49 PM (1).jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-short">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 7.08.49 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/Family8.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/Family9.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-tall">
+                <img src="New folder/Family10.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+            <div class="dump-item t-short">
+                <img src="New folder/WhatsApp Image 2026-05-08 at 7.08.51 PM.jpeg" class="dump-img" alt="Memory">
+                <div class="dump-overlay">
+                    <div class="dump-text"><em>A Beautiful Memory</em>Always close to my heart.</div>
+                </div>
+            </div>
+
+            <div class="dump-item t-tall">
+                <img src="New folder/Family2.jpeg" class="dump-img" alt="Most Important Memory"
+                    style="object-position: center top;">
+                <div class="dump-overlay">
+                    <div class="dump-text">
+                        <em>Simply you</em>
+                        Most of all, I admire simply who you are—my hero.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <p
+            style="text-align:center;color:rgba(45,27,20,0.6);font-style:italic;font-size:16px;margin-top:40px;font-family:'Cormorant Garamond',serif">
+            Hover over the photos to read my thoughts.
+        </p>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="gal-bg" style="cursor: pointer; position: relative; padding-bottom: 60px;"
+        onclick="triggerFamilyPopup()">
+        <div class="sec-hdr">
+            <div class="sec-eye">Captured Moments</div>
+            <h2 class="sec-title" style="transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'"
+                onmouseout="this.style.transform='scale(1)'">Our Gallery of Love</h2>
+            <div class="sec-div"></div>
+            <p
+                style="text-align:center;color:rgba(45,27,20,0.6);font-style:italic;font-size:16px;margin-top:20px;font-family:'Cormorant Garamond',serif">
+                (Click to open family memories)
+            </p>
+        </div>
+    </section>
+
+    <!-- AUDIO -->
+    <section class="aud-bg">
+        <div class="sec-hdr">
+            <div class="sec-eye" style="color:var(--rose)">From My Heart</div>
+            <h2 class="sec-title" style="color:#fdf6ef">Messages For Mumma</h2>
+            <div class="sec-div"></div>
+        </div>
+        <div class="aud-grid">
+            <div class="aud-card" id="ac1">
+                <div class="aud-title">From Madhav</div>
+                <div class="aud-sub">Hear his voice message</div>
+                <div class="waveform" id="wf1">
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                </div>
+                <button class="play-btn" id="pb1" onclick="toggleAudio(1)">▶</button>
+                <audio id="audio1" src="madhav.mp3.ogg" preload="none"></audio>
+            </div>
+            <div class="aud-card" id="ac2">
+                <div class="aud-title">From Ram</div>
+                <div class="aud-sub">Hear his voice message</div>
+                <div class="waveform" id="wf2">
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                    <div class="wb"></div>
+                </div>
+                <button class="play-btn" id="pb2" onclick="toggleAudio(2)">▶</button>
+                <audio id="audio2" src="ram.mp3.ogg" preload="none"></audio>
+            </div>
+        </div>
+        <p
+            style="text-align:center;color:rgba(253,246,239,0.35);font-style:italic;font-size:14px;margin-top:32px;font-family:'Cormorant Garamond',serif">
+        </p>
+    </section>
+
+    <!-- LETTERS -->
+    <section class="let-bg">
+        <div class="sec-hdr">
+            <div class="sec-eye">Letters Through Time</div>
+            <h2 class="sec-title">Words Across the Years</h2>
+            <div class="sec-div"></div>
+        </div>
+        <div class="let-inner">
+            <div class="tab-row">
+                <button class="tab on" onclick="showLetter(0)">From Madhav</button>
+                <button class="tab" onclick="showLetter(1)">From Ram</button>
+            </div>
+            <div class="tab-row" style="margin-bottom: 20px;">
+                <button class="tab" id="hinglishBtn" onclick="translateLetter()" style="display:none;">🔤 Hinglish</button>
+            </div>
+            <div class="let-box">
+                <div class="let-from" id="letFrom">From Madhav</div>
+                <div id="letText"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GRATITUDE -->
+    <section class="grat-bg">
+        <div class="sec-hdr">
+            <div class="sec-eye">In Everything</div>
+            <h2 class="sec-title">A Love That Cannot Be Measured</h2>
+            <div class="sec-div"></div>
+        </div>
+        <div class="ctr-grid" id="ctrGrid">
+            <div class="ctr-card">
+                <div class="ctr-icon">♾️</div>
+                <div class="ctr-val">∞</div>
+                <div class="ctr-lbl">Infinite sacrifices made</div>
+            </div>
+            <div class="ctr-card">
+                <div class="ctr-icon">🤗</div>
+                <div class="ctr-val">∞</div>
+                <div class="ctr-lbl">Countless hugs received</div>
+            </div>
+            <div class="ctr-card">
+                <div class="ctr-icon">❤️</div>
+                <div class="ctr-val">∞</div>
+                <div class="ctr-lbl">A lifetime of love</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL -->
+    <section class="final">
+        <div class="final-bg"></div>
+        <div id="petals"></div>
+        <div class="final-c" id="finalC">
+            <div class="final-eye">For you, always.</div>
+            <h2 class="final-h">Every beautiful thing in me<br><em>started with you.</em></h2>
+            <div class="final-sub">Happy Mumma's Day ❤️</div>
+            <div class="final-bloom">🌸</div>
+        </div>
+    </section>
+
+    <script>
+        // Letters data
+        const letters = [
+            {
+                from: "From Madhav",
+                text: `Dear Mumma,
+
+Even though I might act tough sometimes, you're the one I always look for when things get hard.
+
+Thank you for always listening to my stories, making my favorite food, and putting up with my teenage phase!
+I am so lucky to be your son.
+
+I love you so much!
+
+— Madhav`,
+                hinglish: `Pyari Mumma,
+
+Chahe main kitna bhi tough dikhta hoon, jab mushkil aata hai, to sirf aap ko hi dhundta hoon.
+
+Shukriya har waqt mere stories sunne ke liye, mera favorite khana banana, aur mera teenage phase sahne ke liye!
+Main bahut bhagyashali hoon aapka beta hone ke liye.
+
+Main aap se bahut zyada pyaar karta hoon!
+
+— Madhav`
+            },
+            {
+                from: "From Ram",
+                text: `Dear Mumma,
+
+I'm twenty now, standing at the beginning of my own journey, but every step I take is grounded in what you've taught me.
+
+Every Thursday morning, I wake up and see your message—and it reminds me of all the times you gave me pocket money not just to spend, but to teach me responsibility. Your love has always been more than acts of care; it's been about shaping my character.
+
+You taught me to respect every person I meet, regardless of their status or background. You showed me that disrespecting anyone is like disrespecting the very values you've instilled in me. And more importantly, you taught me that hate has no place in the heart—that forgiveness and compassion are far more powerful.
+
+I understand now the weight of all the quiet sacrifices you made for us. 
+You are my hero, my role model, and my safe place. The man I am today is a reflection of the lessons you've lived before me.
+
+Thank you for shaping me into the man I am today.
+
+— Ram`,
+                hinglish: `Pyari Mumma,
+
+Main ab 20 saal ka hoon, apni journey ki shuruat kar raha hoon, lekin har ek kadam jisme mujhe vikash dena hai, vo sab aapne mujhe sikhaya hai.
+
+Har Thursday subah main jab uthta hoon to aapka message dekhta hoon—aur mujhe yaad aata hai vo har baar jab aapne mujhe pocket money di, sirf kharch karne ke liye nahi, balki zimmedari seekhane ke liye. Aapka pyaar kabhi sirf care nahi tha, balki meri character ko shape karne ke liye tha.
+
+Aapne mujhe seekhaya ki har insaan ko respect karna, chahe vo koi bhi ho, uska background ya mansthiti kuch bhi ho. Aapne mujhe dikhaya ki jab main kisi ko disrespect karta hoon, to maine apne aap ko hi disrespect kiya hota hoon. Aur sabse zaroori baat—aapne mujhe seekhaya ki hate dil mein koi jagah nahi le sakti, kyunki forgiveness aur compassion zaada powerful hote hain.
+
+Ab mujhe samajh aa gaya ki aapne hamse kitne bade sacrifice kiye hain.
+Aap mera hero hain, mera role model, aur meri safe jagah hain. Jo main aaj hoon, vo sab aap ke liye hi hoon.
+
+Shukriya mumma, mujhe acha insaan banane ke liye.
+
+— Ram`
+            }
+        ];
+
+        let curLetter = 0, typeTimer = null;
+        let isHinglish = false;
+
+        function showLetter(i) {
+            curLetter = i;
+            isHinglish = false;
+            document.querySelectorAll('.tab-row:first-child .tab').forEach((b, j) => b.classList.toggle('on', j === i));
+            document.getElementById('letFrom').textContent = letters[i].from;
+            document.getElementById('hinglishBtn').style.display = 'inline-block';
+            document.getElementById('hinglishBtn').classList.remove('on');
+            typeLetter(letters[i].text);
+        }
+
+        function translateLetter() {
+            isHinglish = !isHinglish;
+            const hinglishBtn = document.getElementById('hinglishBtn');
+            hinglishBtn.classList.toggle('on', isHinglish);
+            
+            const textToShow = isHinglish ? letters[curLetter].hinglish : letters[curLetter].text;
+            typeLetter(textToShow);
+        }
+
+        function typeLetter(text) {
+            clearInterval(typeTimer);
+            const el = document.getElementById('letText');
+            el.textContent = '';
+            let idx = 0;
+            typeTimer = setInterval(() => {
+                if (idx < text.length) {
+                    el.textContent = text.slice(0, ++idx);
+                } else clearInterval(typeTimer);
+            }, 16);
+        }
+        showLetter(0);
+
+        // Particles
+        function makeParticles() {
+            const c = document.getElementById('particles');
+            for (let i = 0; i < 22; i++) {
+                const d = document.createElement('div');
+                const s = Math.random() * 5 + 2;
+                d.style.cssText = `position:absolute;border-radius:50%;background:rgba(201,149,108,${Math.random() * 0.5 + 0.2});width:${s}px;height:${s}px;left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation:float ${Math.random() * 3 + 2}s ease-in-out ${Math.random() * 2}s infinite`;
+                c.appendChild(d);
+            }
+        }
+        makeParticles();
+
+        // Petals
+        function makePetals() {
+            const c = document.getElementById('petals');
+            const emj = ['🌸', '🌺', '🌼', '🌹', '💮', '🌷'];
+            for (let i = 0; i < 20; i++) {
+                const p = document.createElement('div');
+                p.className = 'petal';
+                const dx = (Math.random() - 0.5) * 500;
+                p.style.cssText = `left:${Math.random() * 100}%;--dx:${dx}px;--d:${Math.random() * 5 + 5}s;--dl:${Math.random() * 8}s;font-size:${Math.random() * 12 + 10}px`;
+                p.textContent = emj[Math.floor(Math.random() * emj.length)];
+                c.appendChild(p);
+            }
+        }
+        makePetals();
+
+        // Scroll into section
+        function scrollTo(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }) }
+
+        // Easter egg
+        function openEgg() { document.getElementById('eggOverlay').classList.add('on') }
+        function closeEgg() { document.getElementById('eggOverlay').classList.remove('on') }
+
+        // Audio toggle
+        let playingAudio = 0;
+        let audioElements = {};
+        
+        function toggleAudio(n) {
+            if (!audioElements[n]) {
+                audioElements[n] = document.getElementById('audio' + n);
+            }
+            
+            const audio = audioElements[n];
+            
+            if (playingAudio === n) {
+                audio.pause();
+                document.getElementById('ac' + n).classList.remove('playing');
+                document.getElementById('pb' + n).textContent = '▶';
+                playingAudio = 0;
+            } else {
+                // Stop previous audio
+                if (playingAudio && audioElements[playingAudio]) {
+                    audioElements[playingAudio].pause();
+                    document.getElementById('ac' + playingAudio).classList.remove('playing');
+                    document.getElementById('pb' + playingAudio).textContent = '▶';
+                }
+                // Play new audio
+                audio.currentTime = 0;
+                audio.play();
+                document.getElementById('ac' + n).classList.add('playing');
+                document.getElementById('pb' + n).textContent = '⏸';
+                playingAudio = n;
+                
+                // Update button when audio ends
+                audio.onended = function() {
+                    document.getElementById('ac' + n).classList.remove('playing');
+                    document.getElementById('pb' + n).textContent = '▶';
+                    playingAudio = 0;
+                };
+            }
+        }
+
+        // Theme
+        let dark = false;
+        function toggleTheme() {
+            dark = !dark;
+            document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+            document.getElementById('themeBtn').textContent = dark ? '☀ Light' : '☾ Dark';
+        }
+
+        // Music
+        let musicOn = true;
+        let bgAudio = null;
+        
+        function initMusic() {
+            if (!bgAudio) {
+                bgAudio = new Audio('the_mountain-relax-508021.mp3');
+                bgAudio.loop = true;
+                bgAudio.volume = 0.18;
+                bgAudio.play();
+                document.getElementById('musicBtn').textContent = '♪ On';
+            }
+        }
+        
+        function toggleMusic() {
+            if (!bgAudio) {
+                initMusic();
+            } else {
+                musicOn = !musicOn;
+                if (musicOn) {
+                    bgAudio.play();
+                    document.getElementById('musicBtn').textContent = '♪ On';
+                } else {
+                    bgAudio.pause();
+                    document.getElementById('musicBtn').textContent = '♪ Off';
+                }
+            }
+        }
+        
+        // Auto-start music on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => initMusic(), 2500);
+        });
+
+        // Intersection Observer for photo dump
+        const dumpObs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis') });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.dump-item').forEach((el, i) => {
+            el.style.transitionDelay = `${(i % 3) * 0.15}s`;
+            dumpObs.observe(el);
+        });
+
+        const ctrObs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis') });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.ctr-card').forEach((el, i) => {
+            el.style.transitionDelay = `${i * 0.15}s`;
+            ctrObs.observe(el);
+        });
+
+        const finalObs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis') });
+        }, { threshold: 0.2 });
+        finalObs.observe(document.getElementById('finalC'));
+
+        // Family Popup
+        function triggerFamilyPopup() {
+            const popup = document.getElementById('familyPopup');
+            const container = document.getElementById('famContainer');
+            container.innerHTML = '';
+            popup.classList.add('on');
+
+            // Loop and add pictures, user said they will name them family1, family2, etc.
+            // We'll load up to 15 pictures
+            for (let i = 1; i <= 15; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'fam-pic';
+
+                    // Random scatter
+                    const rx = (Math.random() - 0.5) * 60 + 50;
+                    const ry = (Math.random() - 0.5) * 60 + 50;
+                    const rot = (Math.random() - 0.5) * 30;
+
+                    el.style.left = rx + 'vw';
+                    el.style.top = ry + 'vh';
+
+                    const img = document.createElement('img');
+                    // Look for familyX.jpeg, fallback to .jpg handled by user renaming
+                    img.src = `New folder/family${i}.jpeg`;
+                    img.onerror = () => {
+                        // Fallback to .jpg if .jpeg fails
+                        if (img.src.endsWith('.jpeg')) {
+                            img.src = `New folder/family${i}.jpg`;
+                        } else {
+                            el.style.display = 'none';
+                        }
+                    };
+
+                    el.appendChild(img);
+                    container.appendChild(el);
+
+                    // Trigger animation
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            el.style.opacity = '1';
+                            el.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(1)`;
+                        }, 50);
+                    });
+                }, i * 500); // 500ms delay between each
+            }
+        }
+
+        function closeFamilyPopup() {
+            document.getElementById('familyPopup').classList.remove('on');
+        }
+
+        // Photo Dump Lightbox
+        const dumpLightbox = document.createElement('div');
+        dumpLightbox.id = 'dumpLightbox';
+        dumpLightbox.innerHTML = `
+            <div class="lb-bg"></div>
+            <img src="" class="lb-img">
+            <button class="lb-close">Close ✕</button>
+            <div class="lb-caption"></div>
+        `;
+        document.body.appendChild(dumpLightbox);
+
+        const lbImg = dumpLightbox.querySelector('.lb-img');
+        const lbCaption = dumpLightbox.querySelector('.lb-caption');
+        const lbClose = dumpLightbox.querySelector('.lb-close');
+
+        document.querySelectorAll('.dump-item').forEach(item => {
+            item.style.cursor = 'pointer';
+            item.title = 'Click to view full image';
+            item.addEventListener('click', () => {
+                const imgSrc = item.querySelector('img').src;
+                const emEl = item.querySelector('em');
+                const textEl = item.querySelector('.dump-text');
+
+                const emText = emEl ? emEl.innerText : 'A Beautiful Memory';
+                let pText = '';
+                if (textEl) {
+                    pText = textEl.innerText.replace(emText, '').trim();
+                }
+
+                lbImg.src = imgSrc;
+                lbCaption.innerHTML = `<strong>${emText}</strong><br>${pText}`;
+                dumpLightbox.classList.add('on');
+            });
+        });
+
+        lbClose.addEventListener('click', () => dumpLightbox.classList.remove('on'));
+        dumpLightbox.querySelector('.lb-bg').addEventListener('click', () => dumpLightbox.classList.remove('on'));
+
+        // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const l = document.getElementById('loader');
+                l.classList.add('hidden');
+                setTimeout(() => l.remove(), 1200);
+            }, 2200);
+        });
+    </script>
+</body>
+
+</html>
