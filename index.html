@@ -1728,12 +1728,14 @@ Shukriya mumma, mujhe acha insaan banane ke liye.
                     el.style.top = ry + 'vh';
 
                     const img = document.createElement('img');
-                    // Look for familyX.jpeg, fallback to .jpg handled by user renaming
-                    img.src = `New folder/family${i}.jpeg`;
+                    // Look for FamilyX.jpeg, fallback to .jpg or .png if needed
+                    const basePath = `New folder/Family${i}`;
+                    img.src = `${basePath}.jpeg`;
                     img.onerror = () => {
-                        // Fallback to .jpg if .jpeg fails
                         if (img.src.endsWith('.jpeg')) {
-                            img.src = `New folder/family${i}.jpg`;
+                            img.src = `${basePath}.jpg`;
+                        } else if (img.src.endsWith('.jpg')) {
+                            img.src = `${basePath}.png`;
                         } else {
                             el.style.display = 'none';
                         }
